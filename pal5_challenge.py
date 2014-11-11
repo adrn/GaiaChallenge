@@ -28,9 +28,14 @@ Gee = G.decompose(galactic).value
 
 # streams
 from gaiachallenge.potential import GC2Pal5Potential
-from streams.util import streamspath
 from streams.rewinder import Rewinder, RewinderSampler
 import streams.coordinates as stc
+
+# -- HACK --
+# TODO: need a better way to do this
+import gary.potential as gp
+gp.GC2Pal5Potential = GC2Pal5Potential
+# -- HACK --
 
 global pool
 pool = None
