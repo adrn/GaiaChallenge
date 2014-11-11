@@ -86,7 +86,8 @@ class Pal5AxisymmetricNFWPotential(CPotential, CartesianPotential):
     """
     def __init__(self, M, Rh, qz, units=None):
         self.units = units
-        parameters = dict(M=M, Rh=Rh, qz=qz)
+        _G = G.decompose(units).value
+        parameters = dict(G=_G, M=M, Rh=Rh, qz=qz)
         super(Pal5AxisymmetricNFWPotential, self).__init__(_Pal5AxisymmetricNFWPotential,
                                                            parameters=parameters)
 
