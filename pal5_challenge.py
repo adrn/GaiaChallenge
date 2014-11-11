@@ -82,10 +82,8 @@ def main(mpi=False):
     p0_sigma = np.abs(truth*1E-6)
     p0 = np.random.normal(truth, p0_sigma, size=(sampler.nwalkers, sampler.dim))
 
-    return
-
     # burn in
-    sampler.run_inference(p0, 50)
+    sampler.run_inference(p0, 250)
     best_pos = sampler.flatchain[sampler.flatlnprobability.argmax()]
     sampler.reset()
     logger.info("Done burning in")
