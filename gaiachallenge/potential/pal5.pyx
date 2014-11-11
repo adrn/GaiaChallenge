@@ -1,4 +1,9 @@
 # coding: utf-8
+# cython: boundscheck=False
+# cython: nonecheck=False
+# cython: cdivision=True
+# cython: wraparound=False
+# cython: profile=False
 
 """ Potential used for Pal 5 Challenge at the Gaia Challenge 2 """
 
@@ -9,12 +14,24 @@ __author__ = "adrn <adrn@astro.columbia.edu>"
 # Third-party
 from astropy.constants import G
 import numpy as np
+cimport numpy as np
 
 # Project
 # from .core import CartesianCompositePotential
-from gary.potential.cpotential import CCompositePotential
+from gary.potential.cpotential cimport _CPotential
+from gary.potential.cpotential import CPotential, CartesianPotential, CCompositePotential
 from gary.potential.cbuiltin import JaffePotential, MiyamotoNagaiPotential
 from gary.units import galactic
+
+cdef extern from "math.h":
+    double sqrt(double x) nogil
+    double cbrt(double x) nogil
+    double sin(double x) nogil
+    double cos(double x) nogil
+    double log(double x) nogil
+    double fabs(double x) nogil
+    double exp(double x) nogil
+    double pow(double x, double n) nogil
 
 __all__ = ['GC2Pal5Potential']
 
@@ -27,30 +44,31 @@ cdef class _Pal5AxisymmetricNFWPotential(_CPotential):
     cdef public double M, Rh, qz
     cdef public double G, GM, qz2
 
-    def __init__(self, double M, double Rh, double qz):
+    def __init__(self, double G, double M, double Rh, double qz):
         """ Units of everything should be in the system:
                 kpc, Myr, radian, M_sun
         """
+        self.G = G
         self.M = M
         self.Rh = Rh
         self.qz = qz
 
         self.qz2 = self.qz*self.qz
-        self.G = 4.49975332435e-12  # kpc, Myr, Msun
         self.GM = self.G * self.M
 
-    cdef public inline double _value(self, double[:,::1] r, int k) nogil:
+    cdef public inline double _value(self, double *r) nogil:
         cdef double R
-        R = r[k,0]*r[k,0] + r[k,1]*r[k,1] + r[k,2]*r[k,2]/self.qz2
+        R = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]/self.qz2)
         return -self.GM / R * log(1. + R/self.Rh)
 
-    cdef public inline void _gradient(self, double[:,::1] r, double[:,::1] grad, int k) nogil:
+    cdef public inline void _gradient(self, double *r, double *grad) nogil:
         cdef double R, dPhi_dR
-        R = sqrt(r[k,0]*r[k,0] + r[k,1]*r[k,1] + r[k,2]*r[k,2]/self.qz2)
+        R = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]/self.qz2)
+
         dPhi_dR = self.GM / R / R * (log(1+R/self.Rh) - R/(R+self.Rh))
-        grad[k,0] += dPhi_dR * r[k,0] / R
-        grad[k,1] += dPhi_dR * r[k,1] / R
-        grad[k,2] += dPhi_dR * r[k,2] / R / self.qz2
+        grad[0] += dPhi_dR * r[0] / R
+        grad[1] += dPhi_dR * r[1] / R
+        grad[2] += dPhi_dR * r[2] / R / self.qz2
 
 class Pal5AxisymmetricNFWPotential(CPotential, CartesianPotential):
     r"""
