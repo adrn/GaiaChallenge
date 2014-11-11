@@ -1,0 +1,43 @@
+# general
+seed: 42
+name: vl2_challenge1
+
+# plots / output
+plot:
+    mcmc_diagnostics: True
+    posterior: True
+    ext: png
+log_level: debug
+
+# data files
+star_data: data/gaia-challenge-2/vl2/true_stars1.txt
+progenitor_data: data/gaia-challenge-2/vl2/true_prog1.txt
+nstars: 64
+
+# integration
+integration:
+    dt: -1.
+    nsteps: 8000
+
+potential:
+    class: NFWPotential
+    parameters:
+        v_h: LogarithmicPrior(0.01, 1.)
+        r_h: LogarithmicPrior(1., 100.)
+        q1: UniformPrior(0.5,2.)
+        q2: UniformPrior(0.5,2.)
+        q3: UniformPrior(0.5,2.)
+#    fixed:
+
+progenitor:
+    # mass: 15000.
+    mass: LogarithmicPrior(2E3,2E10)
+    mass_loss_rate: 2.
+    # mass_loss_rate: 0.
+
+hyperparameters:
+    alpha: 1.125
+    theta: 0.
+    # theta: -0.3
+    # alpha: UniformPrior(0.7, 1.7)
+    # theta: UniformPrior(-2, 0)
