@@ -92,7 +92,7 @@ class Pal5AxisymmetricNFWPotential(CPotential, CartesianPotential):
                                                            parameters=parameters)
 
 # change to CartesianCompositePotential for Pure-Python
-class GC2Pal5Potential(CCompositePotential):
+class GC2Pal5Potential(CCompositePotential,dict):
 
     def __init__(self, m_disk=1E11, a=6.5, b=0.26,
                  m_spher=3.4E10, c=0.3,
@@ -113,3 +113,6 @@ class GC2Pal5Potential(CCompositePotential):
                                                       M=m_halo, Rh=Rh, qz=qz)
         super(GC2Pal5Potential,self).__init__(**kwargs)
         self.c_instance.G = G.decompose(units).value
+
+        for key,val in kwargs.items():
+            self[key] = val
